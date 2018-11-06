@@ -16,7 +16,7 @@ var networkHandler = {
     fetch: function () {
         $.ajax({
             type: "GET",
-            url: "/gameinfo",
+            url: location.origin+"/gameinfo",
             dataType: "json",
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log("ERROR", jqXHR.status, errorThrown, jqXHR.responseText)
