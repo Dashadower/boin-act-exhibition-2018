@@ -13,8 +13,8 @@
 # limitations under the License.
 
 # [START gae_python37_app]
-from flask import Flask, render_template
-
+from flask import Flask, render_template, request
+import json
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
@@ -22,9 +22,19 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def hello():
+def index():
     """Return a friendly HTTP greeting."""
     return render_template("index.html")
+
+@app.route("/gameinfo", methods=["get"])
+def gameinfo():
+    gdata = {
+        "game_number": 1,
+        "other_player_state": [],
+        "game_state": "finished"
+    }
+    json_obj = json.dumps(gdata)
+    return json_obj
 
 
 if __name__ == '__main__':

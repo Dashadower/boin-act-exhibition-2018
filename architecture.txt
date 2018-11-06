@@ -1,0 +1,25 @@
+Web game : 타이밍
+main game url: /
+handler for AJAX JSON: GET ../gameinfo
+poll every 1 second
+returns JSON object:
+
+{
+    game_number: 14, # number of game, increments
+    other_player_state: [
+        {"Nickname1", int_score},
+        {"Nickname2", int_score},
+        ...
+        {"Nicknamex", int_Score}
+     ]
+     game_state: "running" # game state, either running or finished
+}
+
+game state handling
+running: game is running
+finished: game is finished - use other_player_state to find winner, wait until game_state turns into running to submit data
+
+handler to SEND game result: GET ../gameinfo
+parameters:
+NICKNAME: nickname
+score: distance

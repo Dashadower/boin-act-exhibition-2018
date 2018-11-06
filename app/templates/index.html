@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>ACT</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
 </head>
 <body>
 <h2>ACT 동아리 - 아슬아슬 줄타기</h2>
@@ -16,31 +17,8 @@
 <hr>
 <h5 id="game_number">현재 게임회차: X회</h5>
 <h5 id="score">현재점수: X</h5>
-<!--<canvas id="gamearea" width="400" height="400" style="border: 1px solid #000000;">
-</canvas>-->
-<script type="text/javascript">
-    var gameCanvas = {
-        canvas: document.createElement("canvas"),
-        start: function() {
-            this.canvas.width = $(document).width();
-            this.canvas.height = $(document).height() * 0.8;
-            ctx: this.canvas.getContext("2d")
-        },
-        player_ypos: 10
-    };
-
-    $(document).ready(function () {
-        console.log("           _____ _______ \n" +
-            "     /\\   / ____|__   __|\n" +
-            "    /  \\ | |       | |   \n" +
-            "   / /\\ \\| |       | |   \n" +
-            "  / ____ \\ |____   | |   \n" +
-            " /_/    \\_\\_____|  |_|")
-        console.log("Boin HS ACT Programming Group - Kim Shin Young - November 2018");
-        console.log("보인고등학고 ACT 프로그래밍 동아리 - 김신영 - 2018년 11월");
-        gameCanvas.start();
-    })
-
-</script>
+<canvas id="gamearea">
+</canvas>
+<script src="../js/game.js"></script>
 </body>
 </html>

@@ -1,1 +1,9 @@
 runtime: python37
+
+handlers:
+- url: /js
+  static_dir: js
+
+- url: /js/(.*\.(js))$
+  static_files: js/\1
+  upload: js/.*\.(js)$
