@@ -1,0 +1,7 @@
+indexes:
+
+- kind: User
+  properties:
+  - name: username
+  - name: score
+    direction: desc

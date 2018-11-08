@@ -16,7 +16,7 @@
 # [START gae_python37_app]
 from google.cloud import datastore
 from flask import Flask, render_template, request, redirect, render_template_string
-import json
+import json, logging
 from hashlib import sha256
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
@@ -29,15 +29,16 @@ datastore_client = datastore.Client()
 def index():
     return render_template("index.html")
 
-@app.route("/game", methods=["post"])
+@app.route("/game", methods=["post", "get"])
 def game():
     if not request.values.get("username"):
         return redirect("../")
-
+    username = request.values.get("username")
+    logging.info(username)
     query = datastore_client.query(kind="User")
-    query.add_filter("username", "=", request.values.get("username"))
-    results = list(query.fetch())
-    if len(results) > 0:
+    query.add_filter("username", "=", str(username))
+    results = query.keys_only()
+    if results:
         return render_template_string('''
         <html>
         <body>
@@ -51,9 +52,10 @@ def game():
     else:
         task = datastore.Entity(datastore_client.key("User"))
         task.update({
-            "name": request.values.get("username")
+            "username": username
         })
-        return render_template("game.html", username=request.values.get("username"))
+        datastore_client.put(task)
+        return render_template("game.html", username=username)
 
 @app.route("/gameinfo", methods=["get"])
 def gameinfo():
