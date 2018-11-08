@@ -2,23 +2,55 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ACT</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <style>
+        table, th, td {
+            border: 1px solid chocolate;
+            border-collapse: collapse
+        }
+    </style>
+
 
 </head>
 <body>
-<h2>ACT 동아리 - 아슬아슬 줄타기</h2>
-<div>
-<p>
-    아슬아슬 줄타기 - 여러명의 사람들과 실시간으로 겨루어 결승점으로부터 가장 가깝게 안착해야 합니다. <br>
-    하지만, 결승점을 넘어간 이후로는 탈락되니 빠른 타이밍이 답!
-</p>
-</div>
-<hr>
-<h5 id="game_number">현재 게임회차: X회</h5>
-<h5 id="score">현재점수: X</h5>
-<canvas id="gamearea">
-</canvas>
-<script src="../js/game.js"></script>
+    <h2>ACT 동아리 - 피아노 타일</h2>
+
+    <p>게임방법 - 정해진 기간 내에 가장 높은 피아노 타일 점수를 득점하세요.</p>
+
+    <form action="game" method="post">
+        <table style="border: none">
+            <tr style="border: none">
+                <td style="border: none">아이디</td>
+                <td style="border: none"><input type="text" name="username" maxlength="20" size="20"></td>
+            </tr>
+
+            <tr style="border: none">
+                <td style="border: none" colspan="2" >
+                    <input type="submit" value="입장하기">
+                </td>
+            </tr>
+        </table>
+
+    </form>
+
+    <hr>
+
+    <h5 id="game_number">현재 게임회차: X회</h5>
+    <h5 id="score">남은시간: X:X</h5>
+
+    <table>
+        <tr>
+            <th>순위</th>
+            <th>아이디</th>
+            <th>점수</th>
+        </tr>
+        <tr>
+            <td>Namespace1</td>
+            <td>Namespace1</td>
+            <td>Namespace1</td>
+        </tr>
+    </table>
+
 </body>
 </html>

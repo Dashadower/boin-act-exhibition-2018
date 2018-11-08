@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,18 +14,46 @@
 # limitations under the License.
 
 # [START gae_python37_app]
-from flask import Flask, render_template, request
+from google.cloud import datastore
+from flask import Flask, render_template, request, redirect, render_template_string
 import json
+from hashlib import sha256
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
 app = Flask(__name__)
 
+datastore_client = datastore.Client()
 
 @app.route('/')
 def index():
-    """Return a friendly HTTP greeting."""
     return render_template("index.html")
+
+@app.route("/game", methods=["post"])
+def game():
+    if not request.values.get("username"):
+        return redirect("../")
+
+    query = datastore_client.query(kind="User")
+    query.add_filter("username", "=", request.values.get("username"))
+    results = list(query.fetch())
+    if len(results) > 0:
+        return render_template_string('''
+        <html>
+        <body>
+        <script type="text/javascript">
+        alert("이미 해당 아이디가 존재합니다");
+        window.location = "../";
+        </script>
+        </body>
+        </html>
+        ''')
+    else:
+        task = datastore.Entity(datastore_client.key("User"))
+        task.update({
+            "name": request.values.get("username")
+        })
+        return render_template("game.html", username=request.values.get("username"))
 
 @app.route("/gameinfo", methods=["get"])
 def gameinfo():

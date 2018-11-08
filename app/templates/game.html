@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACT</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/2.4.3/fabric.min.js"></script>
+</head>
+<body>
+<h2>ACT 동아리 - 피아노 타일</h2>
+<div>
+<p>
+    게임방법 - 정해진 기간 내에 가장 높은 피아노 타일 점수를 득점하세요.
+</p>
+</div>
+<hr>
+<h5 id="game_number">현재 게임회차: X회</h5>
+<h5 id="score">현재점수: X</h5>
+<canvas id="gamearea" style="max-width:100%;height:auto">
+</canvas>
+<script type="text/javascript">
+    var username = {{username}};
+</script>
+<script src="../js/game.js"></script>
+</body>
+</html>

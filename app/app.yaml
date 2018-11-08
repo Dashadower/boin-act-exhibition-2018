@@ -7,3 +7,4 @@ handlers:
 - url: /js/(.*\.(js))$
   static_files: js/\1
   upload: js/.*\.(js)$
+  expiration: 10s

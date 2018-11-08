@@ -1,4 +1,4 @@
-
+// needs jquery and fabric.js
 var gameCanvas = {
     canvas: document.getElementById("gamearea"),
     start: function() {
@@ -12,32 +12,7 @@ var gameCanvas = {
     }
 };
 
-var networkHandler = {
-    fetch: function () {
-        $.ajax({
-            type: "GET",
-            url: location.origin+"/gameinfo",
-            dataType: "json",
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log("ERROR", jqXHR.status, errorThrown, jqXHR.responseText)
-            },
-            success: function(data) {
-                return data;
-            }
-        })
-    },
-    game_number: 0,
-    other_player_state: null,
-    update: function(){
-        var _parent = this;
-        var dta = _parent.fetch(null);
-        _parent.game_number = dta.game_number;
-        _parent.other_player_state = dta.other_player_state;
-        _parent.game_state = dta.game_state;
-        document.getElementById("game_number").innerText = dta.game_number;
-        console.log("update()", dta);
-    }
-};
+
 
 
 function player_model(x, y) {
