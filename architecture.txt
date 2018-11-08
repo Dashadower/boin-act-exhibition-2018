@@ -23,3 +23,7 @@ handler to SEND game result: GET ../gameinfo
 parameters:
 NICKNAME: nickname
 score: distance
+
+IMPORTANT NOTE ON DATASTORE OBJECTS
+Datastore strings are ".encode()"ed when entities are created. So when you use query(), you need to encode() the string
+you are trying to compare.

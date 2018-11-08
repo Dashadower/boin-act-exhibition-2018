@@ -36,8 +36,9 @@ def game():
     username = request.values.get("username")
     logging.info(username)
     query = datastore_client.query(kind="User")
-    query.add_filter("username", "=", str(username))
-    results = query.keys_only()
+    query.add_filter("username", "=", username.encode())
+    query.keys_only()
+    results = list(query.fetch())
     if results:
         return render_template_string('''
         <html>
