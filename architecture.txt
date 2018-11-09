@@ -3,7 +3,6 @@ main game url: /
 handler for AJAX JSON: GET ../gameinfo
 poll every 1 second
 returns JSON object:
-
 {
     game_number: 14, # number of game, increments
     other_player_state: [
@@ -12,12 +11,24 @@ returns JSON object:
         ...
         {"Nicknamex", int_Score}
      ]
-     game_state: "running" # game state, either running or finished
+     state: "running" # game state, either starting, progress, finished
+     players: 5 # number of players, >= 5
+     starttime: 1523957123 epoch of start time
+     endtime: 152159232 epoch of end time
 }
 
 game state handling
 running: game is running
 finished: game is finished - use other_player_state to find winner, wait until game_state turns into running to submit data
+
+DATASTORE GAME OBJECT
+Entity kind: Game
+Values:
+int starttime
+int endtime
+int gamenumber
+int players
+str state "starting", "progress", "finished"
 
 handler to SEND game result: GET ../gameinfo
 parameters:

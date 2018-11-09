@@ -26,16 +26,4 @@ function player_model(x, y) {
 
 }
 
-$(document).ready(function () {
-    console.log("           _____ _______ \n" +
-        "     /\\   / ____|__   __|\n" +
-        "    /  \\ | |       | |   \n" +
-        "   / /\\ \\| |       | |   \n" +
-        "  / ____ \\ |____   | |   \n" +
-        " /_/    \\_\\_____|  |_|")
-    console.log("Boin High School ACT Programming Group - Kim Shin Young - November 2018");
-    console.log("보인고등학고 ACT 프로그래밍 동아리 - 김신영 - 2018년 11월");
-    gameCanvas.start();
-    console.log("setInterval handle:",setInterval(networkHandler.update, 2000));
 
-});

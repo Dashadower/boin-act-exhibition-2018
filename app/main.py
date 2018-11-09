@@ -13,10 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Documentation
+# https://googleapis.github.io/google-cloud-python/latest/datastore/index.html
+
 # [START gae_python37_app]
 from google.cloud import datastore
 from flask import Flask, render_template, request, redirect, render_template_string
-import json, logging
+import json, logging, time
 from hashlib import sha256
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
@@ -24,6 +27,10 @@ from hashlib import sha256
 app = Flask(__name__)
 
 datastore_client = datastore.Client()
+
+GAME_DURATION = 600
+MIN_PLAYERS = 5
+
 
 @app.route('/')
 def index():
@@ -53,21 +60,86 @@ def game():
     else:
         task = datastore.Entity(datastore_client.key("User"))
         task.update({
-            "username": username
+            "username": username,
+            "score": 0
         })
         datastore_client.put(task)
         return render_template("game.html", username=username)
 
 @app.route("/gameinfo", methods=["get"])
 def gameinfo():
-    gdata = {
-        "game_number": 1,
-        "other_player_state": [],
-        "game_state": "finished"
-    }
-    json_obj = json.dumps(gdata)
-    return json_obj
+    game_query = datastore_client.query(kind="Game", order=["-starttime"])
+    games_result = list(game_query.fetch(limit=2))
 
+    gamedata = {}
+    if not games_result or games_result[0]["state"] not in  ["progress", "starting"]: # Need to make a game
+        """task = datastore.Entity(datastore_client.key("Game"))
+        gamedata = {
+            "starttime": int(time.time()),
+            "endtime": int(time.time()+GAME_DURATION),
+            "players": 0,
+            "state": "starting",
+            "gamenumber": games_result[1]["gamenumber"]+1 if len(games_result) == 2 else 1
+        }
+        task.update(gamedata)
+
+        # Handle new games by cron job
+
+        datastore_client.put(task)"""
+        payload = {
+            "starttime": 0,
+            "endtime": 0,
+            "players": 0,
+            "state": "starting",
+            "gamenumber": 0
+        }
+        return json.dumps(payload)
+
+    elif games_result and games_result[0]["state"] == "starting":
+        player_count = games_result[0]["players"] + 1
+        games_result[0]["players"] = player_count
+        if player_count >= MIN_PLAYERS:
+            games_result[0]["state"] = "progress"
+        datastore_client.put(games_result[0])
+        gamedata = games_result[0]
+
+    elif games_result and games_result[0]["state"] == "progress":
+        if request.values.get("score"):
+            find_user = datastore_client.query(kind="User")
+            find_user.add_filter("username", "=", request.values.get("username").encode())
+            find_user_results = list(find_user.fetch())
+            if find_user_results:
+                find_user_results[0]["score"] = int(request.values.get("score"))
+                datastore_client.put(find_user_results[0])
+
+        gamedata = games_result[0]
+
+    user_scores = []
+    query = datastore_client.query(kind="User", order=["-score"])
+    user_results = list(query.fetch())
+    for user in user_results:
+        user_scores.append({"username": user["username"], "score": user["score"]})
+    gamedata["other_player_state"] = user_scores
+
+    return json.dumps(gamedata)
+
+@app.route("/creategame", methods=["get"])
+def create_game():
+    game_query = datastore_client.query(kind="Game", order=["-starttime"])
+    games_result = list(game_query.fetch(limit=2))
+    if not games_result or games_result[0]["state"] not in ["progress", "starting"]:
+        task = datastore.Entity(datastore_client.key("Game"))
+        gamedata = {
+            "starttime": int(time.time()),
+            "endtime": int(time.time() + GAME_DURATION),
+            "players": 0,
+            "state": "starting",
+            "gamenumber": games_result[1]["gamenumber"] + 1 if len(games_result) == 2 else 1
+        }
+        task.update(gamedata)
+        datastore_client.put(task)
+        return "", 200
+    return "", 200
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App

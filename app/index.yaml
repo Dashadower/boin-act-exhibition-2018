@@ -5,3 +5,15 @@ indexes:
   - name: username
   - name: score
     direction: desc
+
+- kind: Game
+  properties:
+  - name: starttime
+    direction: desc
+  - name: endtime
+    direction: desc
+  - name: gamenumber
+    direction: desc
+  - name: players
+    direction: desc
+  - name: state
