@@ -121,7 +121,7 @@ def gameinfo():
 @app.route("/creategame", methods=["get"])
 def create_game():
     game_query = datastore_client.query(kind="Game", order=["-starttime"])
-    games_result = list(game_query.fetch(limit=2))
+    games_result = list(game_query.fetch(limit=1))
     if not games_result or games_result[0]["state"] not in ["progress", "starting"]:
         task = datastore.Entity(datastore_client.key("Game"))
         dt = games_result[1]["gamenumber"] if len(games_result) >= 2 else 0

@@ -7,7 +7,7 @@ var networkHandler = {
     endtime: 0
 };
 
-function updateStats(_username, _score) {
+function fetchStats(_username, _score) {
     if(_username==undefined){
         $.getJSON(
             url="../gameinfo",
@@ -27,7 +27,7 @@ function updateStats(_username, _score) {
             }
         ).always(
             function () {
-                setTimeout(updateStats, 2000);
+                setTimeout(fetchStats, 2000);
             }
         )
     }
@@ -51,18 +51,18 @@ function updateStats(_username, _score) {
             }
         ).always(
             function () {
-                setTimeout(updateStats, 2000);
+                setTimeout(fetchStats, 2000);
             }
         )
     }
 }
 
 
-function updateScoreBoard(tableId) {
+function updateData(tableId) {
     //$('#' + tableId).empty(); //not really necessary
     var fields = ["username", "score"];
     data = networkHandler.other_player_state;
-    console.log("updateScoreBoard called", data);
+    //console.log("updateScoreBoard called", data);
     var rows = '';
     rows += "<tr><th>순위</th><th>아이디</th><th>점수</th></tr>";
     var count = 1;
@@ -77,23 +77,26 @@ function updateScoreBoard(tableId) {
     });
     $('#' + tableId).html(rows);
 
-    document.getElementById("gamenumber").innerText = "현재 게임회차: "+data.gamenumber
-    if(data.state == "starting"){
-         document.getElementById("state").innerText = "게임상태: 게임 시작중"
+    document.getElementById("gamenumber").innerText = "현재 게임회차: "+networkHandler.gamenumber;
+    if(networkHandler.state == "starting"){
+         document.getElementById("state").innerText = "게임상태: 게임 시작중";
     }
-    else if(data.state == "progress"){
-        document.getElementById("state").innerText = "게임상태: 게임 진행중"
+    else if(networkHandler.state == "progress"){
+        document.getElementById("state").innerText = "게임상태: 게임 진행중";
     }
-    else if(data.state == "finished"){
-        document.getElementById("state").innerText = "게임상태: 게임 완료 - 다음게임 시작 대기중"
+    else if(networkHandler.state == "finished"){
+        document.getElementById("state").innerText = "게임상태: 게임 완료 - 다음게임 시작 대기중";
     }
-    d = Date()
-    minutes = d.
-
+    d = new Date();
+    epoch = Math.round(d.getTime() /1000);
+    timedelta = networkHandler.endtime-epoch;
+    seconds = timedelta % 60;
+    minutes = (timedelta-seconds) / 60;
+    document.getElementById("timeleft").innerText = "남은시간: "+Math.max(minutes, 0)+":"+Math.max(seconds, 0);
 }
 
 
-$(document).ready(function () {
+$(window).on("load",function () {
     console.log("           _____ _______ \n" +
         "     /\\   / ____|__   __|\n" +
         "    /  \\ | |       | |   \n" +
@@ -104,8 +107,9 @@ $(document).ready(function () {
     console.log("보인고등학고 ACT 프로그래밍 동아리 - 김신영 - 2018년 11월");
     console.log("Update check!");
     //console.log("setInterval handle:",setInterval(networkHandler.update, 2000));
-    updateStats();
-    updateScoreBoard("scoreboard");
-    setInterval(function(){updateScoreBoard("scoreboard");}, 1000);
+    fetchStats();
+    console.log(networkHandler);
+    updateData("scoreboard");
+    setInterval(function(){updateData("scoreboard");}, 1000);
 
 });
