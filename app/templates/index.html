@@ -4,12 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ACT</title>
-    <style>
-        table, th, td {
-            border: 1px solid chocolate;
-            border-collapse: collapse
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="../stylesheets/mainstyle.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="../js/getstats.js"></script>
 </head>
@@ -36,10 +31,11 @@
 
     <hr>
 
-    <h5 id="game_number">현재 게임회차: X회</h5>
-    <h5 id="score">남은시간: X:X</h5>
+    <h5 id="gamenumber">현재 게임회차: 연결중...</h5>
+    <h5 id=""state>게임상태: 연결중...</h5>
+    <h5 id="timeleft">남은시간: 연결중...</h5>
 
-    <table>
+    <table id="scoreboard">
         <tr>
             <th>순위</th>
             <th>아이디</th>

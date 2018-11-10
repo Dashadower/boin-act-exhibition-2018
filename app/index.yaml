@@ -17,3 +17,4 @@ indexes:
   - name: players
     direction: desc
   - name: state
+  - name: info

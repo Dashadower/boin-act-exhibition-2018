@@ -1,10 +1,15 @@
 runtime: python37
 
+default_expiration: "10s"
+
 handlers:
-- url: /js
-  static_dir: js
 
 - url: /js/(.*\.(js))$
   static_files: js/\1
-  upload: js/.*\.(js)$
+  upload: js/(.*\.(js))$
+  expiration: 10s
+
+- url: /stylesheets/(.*\.(css))$
+  static_files: stylesheets/\1
+  upload: stylesheets/(.*\.(css))$
   expiration: 10s
