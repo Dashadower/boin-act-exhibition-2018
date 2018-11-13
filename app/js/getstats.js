@@ -102,7 +102,7 @@ $(window).on("load",function () {
         "    /  \\ | |       | |   \n" +
         "   / /\\ \\| |       | |   \n" +
         "  / ____ \\ |____   | |   \n" +
-        " /_/    \\_\\_____|  |_|")
+        " /_/    \\_\\_____|  |_|");
     console.log("Boin High School ACT Programming Group - Kim Shin Young - November 2018");
     console.log("보인고등학고 ACT 프로그래밍 동아리 - 김신영 - 2018년 11월");
     console.log("Update check!");

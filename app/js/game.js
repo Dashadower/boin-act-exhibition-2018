@@ -1,29 +1,27 @@
 // needs jquery and fabric.js
 var gameCanvas = {
-    canvas: document.getElementById("gamearea"),
+    _canvas: document.getElementById("gamearea"),
     start: function() {
-        this.canvas.style = "border: 1px solid #000000;";
-        this.canvas.width = $(document).width();
-        this.canvas.height = $(document).height() * 0.8;
-        this.context = this.canvas.getContext("2d");
+        this._canvas.style = "border: 1px solid #000000;";
+        this._canvas.height = $(document).height() * 0.9;
+        this._canvas.width = ($(document).height() * 0.9);
+
+        this._context = this.canvas.getContext("2d");
     },
-    clear: function () {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    }
+    canvas: new fabric.Canvas(this._canvas)
+
 };
 
-
-
-
-function player_model(x, y) {
-    this.xpos = x;
-    this.ypos = y;
-
-    ctx = gameCanvas.context;
-    ctx.fillStyle = "red";
-    ctx.arc(x,y,10, 0,Math.PI*2);
-    ctx.fill();
-
-}
+$(window).on("load",function () {
+    //setInterval(function(){updateData("scoreboard");}, 1000);
+    var rect = fabric.Rect({
+        left: 100,
+        top: 100,
+        fill: "black",
+        width: gameCanvas._canvas.width/4,
+        height: gameCanvas._canvas.height/4
+    });
+    gameCanvas.canvas.add(rect)
+});
 
 

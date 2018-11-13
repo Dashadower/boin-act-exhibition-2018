@@ -4,26 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ACT</title>
+    <link rel="stylesheet" type="text/css" href="../stylesheets/mainstyle.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/2.4.3/fabric.min.js"></script>
     <script src="../js/getstats.js"></script>
+
 </head>
 <body>
-<h2>ACT 동아리 - 피아노 타일</h2>
-<div>
-<p>
-    게임방법 - 정해진 기간 내에 가장 높은 피아노 타일 점수를 득점하세요.
-</p>
-</div>
-<hr>
-<h5 id="gamenumber">현재 게임회차: 연결중...</h5>
-<h5 id="state">게임상태: 연결중...</h5>
-<h5 id="timeleft">남은시간: 연결중...</h5>
-<canvas id="gamearea" style="max-width:100%;height:auto">
-</canvas>
-<script type="text/javascript">
-    var username = "{{username}}";
-</script>
-<script src="../js/game.js"></script>
+    <div class="tab">
+        <button class="tablinks" onclick="openCity(event, 'game')">게임</button>
+        <button class="tablinks" onclick="openCity(event, 'info')">정보</button>
+        <button class="tablinks" onclick="openCity(event, 'score')">점수판</button>
+    </div>
+
+    <div id="game" class="tabcontent">
+        <canvas id="gamearea" width="480" height="800">
+
+        </canvas>
+    </div>
+
+    <div id="info" class="tabcontent">
+        <h2>ACT 동아리 - 피아노 타일</h2>
+        <p>
+            게임방법 - 정해진 기간 내에 가장 높은 피아노 타일 점수를 득점하세요.
+        </p>
+        <hr>
+        <h5 id="gamenumber">현재 게임회차: 연결중...</h5>
+        <h5 id="state">게임상태: 연결중...</h5>
+        <h5 id="timeleft">남은시간: 연결중...</h5>
+    </div>
+
+    <div id="score" class="tabcontent">
+        <table id="scoreboard">
+            <tr>
+                <th>순위</th>
+                <th>아이디</th>
+                <th>점수</th>
+            </tr>
+            <tr>
+                <td>Namespace1</td>
+                <td>Namespace1</td>
+                <td>Namespace1</td>
+            </tr>
+        </table>
+    </div>
+
+
+    <script type="text/javascript">
+        var username = "{{username}}";
+        function openCity(evt, cityName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(cityName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+    openCity(null, "info");
+    </script>
+    <script src="../js/game.js"></script>
 </body>
 </html>
