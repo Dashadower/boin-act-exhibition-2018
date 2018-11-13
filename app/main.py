@@ -124,7 +124,7 @@ def create_game():
     games_result = list(game_query.fetch(limit=1))
     if not games_result or games_result[0]["state"] not in ["progress", "starting"]:
         task = datastore.Entity(datastore_client.key("Game"))
-        dt = games_result[1]["gamenumber"] if len(games_result) >= 2 else 0
+        dt = games_result[0]["gamenumber"] if games_result[0] else 0
         gamedata = {
             "starttime": int(time.time()),
             "endtime": int(time.time() + GAME_DURATION),

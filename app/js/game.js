@@ -1,27 +1,44 @@
 // needs jquery and fabric.js
 var gameCanvas = {
     _canvas: document.getElementById("gamearea"),
-    start: function() {
-        this._canvas.style = "border: 1px solid #000000;";
-        this._canvas.height = $(document).height() * 0.9;
-        this._canvas.width = ($(document).height() * 0.9);
+    canvas: new fabric.Canvas("gamearea"),
+    gamewidth: 0,
+    gameheight: 0,
+    resize: function(){
 
-        this._context = this.canvas.getContext("2d");
+        var gamewidth = $(window).width() * 0.9;
+        var gameheight = (gamewidth*5)/3;
+        this._canvas.width = gamewidth;
+        this._canvas.height = gameheight;
+        this._canvas.style.width = gamewidth;
+        this._canvas.style.height =gameheight;
+        this.gamewidth = gamewidth;
+        this.gameheight = gameheight;
+        console.log(gamewidth, gameheight);
     },
-    canvas: new fabric.Canvas(this._canvas)
-
+    drawBase: function () {
+        for(var i = 1; i <= 3; i++ ){
+            console.log([(this.gamewidth/4)*i, 0, (this.gamewidth/4)*i+1, this.gameheight]);
+            this.canvas.add(new fabric.Line([(this.gamewidth/4)*i, 0, (this.gamewidth/4)*i+1, this.gameheight], {
+                stroke: "black",
+                strokeWidth: 1
+            }));
+        }
+    }
 };
 
 $(window).on("load",function () {
-    //setInterval(function(){updateData("scoreboard");}, 1000);
-    var rect = fabric.Rect({
+    gameCanvas.resize();
+    setInterval(function(){updateData("scoreboard");}, 1000);
+    var rect = new fabric.Rect({
         left: 100,
         top: 100,
         fill: "black",
         width: gameCanvas._canvas.width/4,
         height: gameCanvas._canvas.height/4
     });
-    gameCanvas.canvas.add(rect)
+
+    //gameCanvas.canvas.add(rect);
 });
 
 
