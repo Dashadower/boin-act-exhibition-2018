@@ -11,7 +11,7 @@ returns JSON object:
         ...
         {"Nicknamex", int_Score}
      ]
-     state: "running" # game state, either starting, progress, finished
+     state: "progress" # game state, either starting, progress, finished
      players: 5 # number of players, >= 5
      starttime: 1523957123 epoch of start time
      endtime: 152159232 epoch of end time

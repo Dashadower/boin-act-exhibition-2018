@@ -1,9 +1,21 @@
 // needs jquery and fabric.js
 var gameCanvas = {
     _canvas: document.getElementById("gamearea"),
-    canvas: new fabric.Canvas("gamearea"),
+    //canvas: new fabric.Canvas("gamearea"),
+    ctx: undefined,
     gamewidth: 0,
     gameheight: 0,
+    score: 0,
+    tiles: [], // array of numbers for tiles, from 0 to 3
+    current_tick: 0, // tick, in rendering, coordinate for bottom of rect
+    tile_width: 0,
+    tile_height: 0,
+    pps: 0.5,
+    pps_increment_per_second: 0.02,
+    default_pps: 0.5,
+    fps: 30,
+    touch_bounds: [],
+    setInterval_handle: undefined,
     resize: function(){
 
         var gamewidth = $(window).width() * 0.9;
@@ -11,34 +23,130 @@ var gameCanvas = {
         this._canvas.width = gamewidth;
         this._canvas.height = gameheight;
         this._canvas.style.width = gamewidth;
-        this._canvas.style.height =gameheight;
+        this._canvas.style.height = gameheight;
         this.gamewidth = gamewidth;
         this.gameheight = gameheight;
         console.log(gamewidth, gameheight);
     },
-    drawBase: function () {
+    draw_Base: function () {
+        this.ctx.strokeStyle = "#000000";
+        this.ctx.lineWidth = 1;
         for(var i = 1; i <= 3; i++ ){
-            console.log([(this.gamewidth/4)*i, 0, (this.gamewidth/4)*i+1, this.gameheight]);
-            this.canvas.add(new fabric.Line([(this.gamewidth/4)*i, 0, (this.gamewidth/4)*i+1, this.gameheight], {
-                stroke: "black",
-                strokeWidth: 1
-            }));
+            //console.log([(this.gamewidth/4)*i, 0, (this.gamewidth/4)*i+1, this.gameheight]);
+
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.gamewidth/4*i, 0);
+            this.ctx.lineTo(this.gamewidth/4*i, this.gameheight);
+            this.ctx.stroke();
         }
+    },
+    get_context: function () {
+        this.ctx = this._canvas.getContext("2d");
+    },
+    clear: function () {
+        this.ctx.clearRect(0, 0, this.gamewidth, this.gameheight);
+    },
+    initiate_game: function () {
+        var self = this;
+        this.get_context();
+        this.clear();
+        this.score = 0;
+        this.current_tick = 0;
+        this.pps = this.default_pps;
+        this.tile_width = this.gamewidth/4;
+        this.tile_height = this.gameheight/4;
+        this.tiles = [];
+        this.ctx.textAlign = "center";
+        this.ctx.fillStyle = "black";
+        this.ctx.font = "30px Arial";
+        console.log("tickrate", this.tickrate);
+        for(var i = 0; i <= 5; i++){
+            this.tiles.push(rng());
+        }
+        //this._canvas.addEventListener("touchstart", function(e){self.onTouch(e)}, false);
+        this.create_ready_screen();
+        $("#gamearea").on("touchstart", function(e){self.onTouch(e);});
+    },
+    create_ready_screen: function(){
+        this.clear();
+        this.ctx.fillText("터치하여 게임 시작", this.gamewidth/2, this.gameheight*0.2);
+    },
+    onTouch: function(event){
+        var touch = event.changedTouches;
+        var rect = this._canvas.getBoundingClientRect();
+        var x = touch[0].clientX - rect.left;
+        var y = touch[0].clientY - rect.top;
+        //console.log(this.touch_bounds, x, y);
+        if (x >= this.touch_bounds[0] &&
+            x <= this.touch_bounds[1] &&
+            y >= this.touch_bounds[2] &&
+            y <= this.touch_bounds[3]) {
+            this.tiles.shift();
+            this.score = this.score + 1;
+            this.current_tick = this.current_tick - this.tile_height;
+            this.tiles.push(rng());
+        }
+        console.log(this.pps);
+    },
+    set_interval: function(){
+        var self = this;
+        var hwnd = setInterval(function(){self.tick();}, 1000/this.fps);
+        this.setInterval_handle = hwnd;
+    },
+    unbind_and_clear: function(){
+        this.unbind();
+        clearInterval(this.setInterval_handle);
+    },
+    unbind: function(){
+        $("#gamearea").off();
+    },
+    tick: function () {
+        this.clear();
+        this.draw_Base();
+        if(this.current_tick <= 0){
+            this.current_tick = this.current_tick + 1;
+            console.log("tick",this.current_tick);
+            return 0;
+        }
+        //console.log("tick",this.current_tick);
+        //console.log("tiles", this.tiles);
+
+        if(this.current_tick > this.gameheight + this.tile_height){
+            this.tiles.shift();
+            this.tiles.push(rng());
+            this.current_tick = this.current_tick - this.tile_height;
+            //should be game over here
+        }
+        this.ctx.fillStyle = "black";
+        var draw_y = this.current_tick;
+        var arr_index = 0;
+        while(1){
+            if(draw_y <= -this.tile_height){
+                break;
+            }
+            this.ctx.fillRect(this.tiles[arr_index]*this.tile_width, draw_y-this.tile_height, this.tile_width, this.tile_height);
+            if(arr_index === 0){
+                this.touch_bounds = [this.tiles[arr_index]*this.tile_width, (this.tiles[arr_index]+1)*this.tile_width, draw_y-this.tile_height, draw_y]
+            }
+            draw_y = draw_y - this.tile_height;
+            arr_index = arr_index + 1;
+        }
+        this.current_tick = this.current_tick + this.gameheight* (this.pps/this.fps);
+        this.pps = this.pps + this.pps_increment_per_second/this.fps;
+        this.ctx.fillStyle = "red";
+        this.ctx.fillText(this.score.toString(), this.gamewidth/2, this.gameheight*0.2);
+        return 0;
     }
 };
+
+function rng(){
+    return Math.floor((Math.random() * 4));
+}
 
 $(window).on("load",function () {
     gameCanvas.resize();
     setInterval(function(){updateData("scoreboard");}, 1000);
-    var rect = new fabric.Rect({
-        left: 100,
-        top: 100,
-        fill: "black",
-        width: gameCanvas._canvas.width/4,
-        height: gameCanvas._canvas.height/4
-    });
 
-    //gameCanvas.canvas.add(rect);
 });
 
 

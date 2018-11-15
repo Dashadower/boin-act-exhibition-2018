@@ -2,11 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 maximum-scale=1.0, user-scalable=no">
     <title>ACT</title>
     <link rel="stylesheet" type="text/css" href="../stylesheets/mainstyle.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/2.4.3/fabric.min.js"></script>
     <script src="../js/getstats.js"></script>
 
 </head>
@@ -18,8 +17,7 @@
     </div>
 
     <div id="game" class="tabcontent">
-        <canvas id="gamearea">
-        </canvas>
+        <canvas id="gamearea"></canvas>
     </div>
 
     <div id="info" class="tabcontent">
@@ -48,10 +46,27 @@
         </table>
     </div>
 
-
+    <script src="../js/game.js"></script>
     <script type="text/javascript">
+        var on_game = false;
         var username = "{{username}}";
+
         function changeTab(evt, cityName) {
+            if(cityName == "game"){
+                console.log(" gamemode, clear handle");
+                if(on_game == false){
+                    gameCanvas.initiate_game();
+                    gameCanvas.set_interval();
+                }
+                on_game = true;
+            }
+            else{
+                if(on_game == true){
+                    console.log("statsmode, clear handle");
+                    gameCanvas.unbind_and_clear()
+                }
+                on_game = false;
+            }
             var i, tabcontent, tablinks;
             tabcontent = document.getElementsByClassName("tabcontent");
             for (i = 0; i < tabcontent.length; i++) {
@@ -66,8 +81,10 @@
         }
         $(window).on("load",function () {
             $("#tab_info_button").click();
+            interval_handle = setInterval(function(){updateData("scoreboard");}, 1000);
+
         });
     </script>
-    <script src="../js/game.js"></script>
+
 </body>
 </html>
