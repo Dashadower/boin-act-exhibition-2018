@@ -126,7 +126,7 @@ function updateData(tableId, notification_tableId) {
     else if(networkHandler.state == "finished"){
         document.getElementById("state").innerText = "게임상태: 게임 완료 - 다음게임 시작 대기중";
         if(networkHandler.numbawan===username && awarded === false){
-            alert("축하드립니다. 현재 회차의 우승자가 되었습니다. 상품을 수령하기 위해 부스로 오셔서 회차 암호: ", networkHandler.hash, " 를 부원에게 말씀해주세요.");
+            alert("축하드립니다. 현재 회차의 우승자가 되었습니다. 상품을 수령하기 위해 부스로 오셔서 회차 암호: "+ networkHandler.hash + " 를 부원에게 말씀해주세요.");
             awarded = true
         }
     }
