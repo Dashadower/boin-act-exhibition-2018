@@ -10,7 +10,7 @@ var gameCanvas = {
     current_tick: 0, // tick, in rendering, coordinate for bottom of rect
     tile_width: 0,
     tile_height: 0,
-    pps: 0.5,
+    pps: 0.5, // portion of screen moving per second; max tested pps before rendering screws up is about 7.x
     pps_increment_per_second: 0.02,
     default_pps: 0.5,
     fps: 30,
@@ -26,7 +26,7 @@ var gameCanvas = {
         this._canvas.style.height = gameheight;
         this.gamewidth = gamewidth;
         this.gameheight = gameheight;
-        console.log(gamewidth, gameheight);
+        //console.log(gamewidth, gameheight);
     },
     draw_Base: function () {
         this.ctx.strokeStyle = "#000000";
@@ -59,7 +59,7 @@ var gameCanvas = {
         this.ctx.textAlign = "center";
         this.ctx.fillStyle = "black";
         this.ctx.font = "30px Arial";
-        console.log("tickrate", this.tickrate);
+        //console.log("tickrate", this.tickrate);
         for(var i = 0; i <= 5; i++){
             this.tiles.push(rng());
         }
@@ -85,8 +85,26 @@ var gameCanvas = {
             this.score = this.score + 1;
             this.current_tick = this.current_tick - this.tile_height;
             this.tiles.push(rng());
+            submitting_score = this.score;
+            submitting_username = username;
         }
-        console.log(this.pps);
+        else {
+            // Game over, touched wrong
+            this.onGameOver();
+        }
+
+    },
+    onGameOver: function(){
+        this.unbind_and_clear();
+        fetchStats(submitting_username, submitting_score);
+        submitting_username = undefined;
+        submitting_score = undefined;
+
+        this.ctx.fillStyle = "red";
+        this.ctx.fillText("게임 오버", this.gamewidth/2, this.gameheight*0.2 - 40);
+        //this.ctx.fillText(this.score.toString(), this.gamewidth/2, this.gameheight*0.2);
+        this.ctx.fillText("게임 오버", this.gamewidth/2, this.gameheight*0.2 - 40);
+        //setTimeout(function(){$("#tab_info_button").click();}, 3000);
     },
     set_interval: function(){
         var self = this;
@@ -105,7 +123,7 @@ var gameCanvas = {
         this.draw_Base();
         if(this.current_tick <= 0){
             this.current_tick = this.current_tick + 1;
-            console.log("tick",this.current_tick);
+
             return 0;
         }
         //console.log("tick",this.current_tick);
@@ -116,6 +134,7 @@ var gameCanvas = {
             this.tiles.push(rng());
             this.current_tick = this.current_tick - this.tile_height;
             //should be game over here
+            this.onGameOver();
         }
         this.ctx.fillStyle = "black";
         var draw_y = this.current_tick;
@@ -145,7 +164,7 @@ function rng(){
 
 $(window).on("load",function () {
     gameCanvas.resize();
-    setInterval(function(){updateData("scoreboard");}, 1000);
+    //setInterval(function(){updateData("scoreboard");}, 1000);
 
 });
 

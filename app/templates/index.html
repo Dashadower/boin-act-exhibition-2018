@@ -11,7 +11,7 @@
 <body>
     <h2>ACT 동아리 - 피아노 타일</h2>
 
-    <p>게임방법 - 정해진 기간 내에 가장 높은 피아노 타일 점수를 득점하세요.</p>
+    <p>게임방법 - 기간 내에 가장 높은 피아노 타일 점수를 득점하세요.</p>
 
     <form action="game" method="post">
         <table style="border: none">
@@ -34,7 +34,13 @@
     <h5 id="gamenumber">현재 게임회차: 연결중...</h5>
     <h5 id="state">게임상태: 연결중...</h5>
     <h5 id="timeleft">남은시간: 연결중...</h5>
+    <h5 id="numbawan">현재 1위: 연결중...</h5>
+    <h5>공지사항:</h5>
+    <table id="notifications">
 
+    </table>
+    <br>
+    <h5>점수표</h5>
     <table id="scoreboard">
         <tr>
             <th>순위</th>
@@ -47,6 +53,13 @@
             <td>Namespace1</td>
         </tr>
     </table>
-
+    <script type="text/javascript">
+        fetchStats();
+        $(window).on("load",function () {
+            fetchStats();
+            updateData("scoreboard", "notifications");
+            setInterval(function(){updateData("scoreboard", "notifications");}, 1000);
+        });
+    </script>
 </body>
 </html>

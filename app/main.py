@@ -73,8 +73,25 @@ def gameinfo():
     games_result = list(game_query.fetch(limit=2))
 
     gamedata = {}
-    if not games_result or games_result[0]["state"] =="finished": # Need to make a game
-        return json.dumps(games_result[0])
+
+
+
+    if not games_result: # Need to make a game
+        dt = {
+            "game_number": "error", # number of game, increments
+            "other_player_state": [],
+            "state": "error",
+            "players": 0,
+            "starttime":  0 ,
+            "endtime": 0
+        }
+        notifications = []
+        query = datastore_client.query(kind="Notification")
+        notification_results = list(query.fetch())
+        for alert in notification_results:
+            notifications.append({"data": alert["data"]})
+        dt["notifications"] = notifications
+        return json.dumps(dt)
 
     elif games_result and games_result[0]["state"] == "starting":
         player_count = games_result[0]["players"] + 1
@@ -90,31 +107,38 @@ def gameinfo():
             find_user.add_filter("username", "=", request.values.get("username").encode())
             find_user_results = list(find_user.fetch())
             if find_user_results:
-                find_user_results[0]["score"] = int(request.values.get("score"))
-                datastore_client.put(find_user_results[0])
-
+                if int(request.values.get("score")) > find_user_results[0]["score"]:
+                    find_user_results[0]["score"] = int(request.values.get("score"))
+                    datastore_client.put(find_user_results[0])
+            else:
+                task = datastore.Entity(datastore.client_key("User"))
+                task.update({
+                    "username": request.values.get("username"),
+                    "score": request.values.get("score")
+                })
+                datastore_client.put(task)
         gamedata = games_result[0]
 
-    user_scores = []
-    if request.values.get("username"):
-        found_user = False
-    else:
-        found_user = True
+    elif games_result and games_result[0]["state"] == "finished":
+        gamedata = games_result[0]
+        gamedata["hash"] = games_result[0]["hash"]
+
+    notifications = []
+    query = datastore_client.query(kind="Notification")
+    notification_results = list(query.fetch())
+    for alert in notification_results:
+        notifications.append({"data": alert["data"]})
+    gamedata["notifications"] = notifications
+
     query = datastore_client.query(kind="User", order=["-score"])
     user_results = list(query.fetch())
-    for user in user_results:
-        user_scores.append({"username": user["username"], "score": user["score"]})
-        if request.values.get("username"):
-            if user["username"] == request.values.get("username").encode():
-                found_user = True
-    if not found_user:
-        new_user = datastore_client.Entity(datastore_client.key("User"))
-        new_user.update({
-            "username":request.values.get("username"),
-            "score":0
-        })
-        datastore_client.put(new_user)
+    user_scores = []
+    if user_results:
+        for user in user_results:
+            user_scores.append({"username": user["username"], "score": user["score"]})
+        gamedata["numbawan"] = user_results[0]["username"]
     gamedata["other_player_state"] = user_scores
+
 
     return json.dumps(gamedata)
 
@@ -124,13 +148,17 @@ def create_game():
     games_result = list(game_query.fetch(limit=1))
     if not games_result or games_result[0]["state"] not in ["progress", "starting"]:
         task = datastore.Entity(datastore_client.key("Game"))
-        dt = games_result[0]["gamenumber"] if games_result[0] else 0
+        if games_result:
+             dt = games_result[0]["gamenumber"]
+        else:
+            dt = 0
         gamedata = {
             "starttime": int(time.time()),
             "endtime": int(time.time() + GAME_DURATION),
             "players": 0,
             "state": "starting",
-            "gamenumber": dt + 1
+            "gamenumber": dt + 1,
+            "hash": sha256(str(time.time()).encode()).hexdigest()[:5]
         }
         task.update(gamedata)
         datastore_client.put(task)
@@ -144,6 +172,8 @@ def create_game():
             games_result[0]["state"] = "finished"
             datastore_client.put(games_result[0])
     return "", 200
+
+
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App

@@ -23,12 +23,17 @@
     <div id="info" class="tabcontent">
         <h2>ACT 동아리 - 피아노 타일</h2>
         <p>
-            게임방법 - 정해진 기간 내에 가장 높은 피아노 타일 점수를 득점하세요.
+            게임방법 - 기간 내에 가장 높은 피아노 타일 점수를 득점하세요.
         </p>
         <hr>
         <h5 id="gamenumber">현재 게임회차: 연결중...</h5>
         <h5 id="state">게임상태: 연결중...</h5>
         <h5 id="timeleft">남은시간: 연결중...</h5>
+        <h5 id="numbawan">현재 1위: 연결중...</h5>
+        <h5>공지사항:</h5>
+        <table id="notifications">
+
+        </table>
     </div>
 
     <div id="score" class="tabcontent">
@@ -50,23 +55,32 @@
     <script type="text/javascript">
         var on_game = false;
         var username = "{{username}}";
-
+        var interval_handle;
         function changeTab(evt, cityName) {
             if(cityName == "game"){
-                console.log(" gamemode, clear handle");
+
                 if(on_game == false){
                     gameCanvas.initiate_game();
                     gameCanvas.set_interval();
+                    clearInterval(interval_handle);
                 }
                 on_game = true;
             }
             else{
                 if(on_game == true){
-                    console.log("statsmode, clear handle");
-                    gameCanvas.unbind_and_clear()
+                    gameCanvas.unbind_and_clear();
+                    interval_handle = setInterval(function(){updateData("scoreboard", "notifications");}, 1000);
                 }
                 on_game = false;
             }
+            /*if(cityName == "score"){
+                var table = document.getElementById("mytab1");
+                for (var i = 1, row; row = table.rows[i]; i++) {
+                   //iterate through rows
+                   //rows would be accessed using the "row" variable assigned in the for loop
+                   if table.rows[i].cells[1]
+                }
+            }*/
             var i, tabcontent, tablinks;
             tabcontent = document.getElementsByClassName("tabcontent");
             for (i = 0; i < tabcontent.length; i++) {
@@ -81,8 +95,9 @@
         }
         $(window).on("load",function () {
             $("#tab_info_button").click();
-            interval_handle = setInterval(function(){updateData("scoreboard");}, 1000);
-
+            fetchStats();
+            updateData("scoreboard", "notifications");
+            interval_handle = setInterval(function(){updateData("scoreboard", "notifications");}, 1000);
         });
     </script>
 
