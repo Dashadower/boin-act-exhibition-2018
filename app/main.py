@@ -111,7 +111,7 @@ def gameinfo():
                     find_user_results[0]["score"] = int(request.values.get("score"))
                     datastore_client.put(find_user_results[0])
             else:
-                task = datastore.Entity(datastore.client_key("User"))
+                task = datastore.Entity(datastore_client.key("User"))
                 task.update({
                     "username": request.values.get("username"),
                     "score": request.values.get("score")
