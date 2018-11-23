@@ -18,7 +18,7 @@ var gameCanvas = {
     setInterval_handle: undefined,
     resize: function(){
 
-        var gamewidth = $(window).width() * 0.9;
+        var gamewidth = $(window).width() * 0.85;
         var gameheight = (gamewidth*5)/3;
         this._canvas.width = gamewidth;
         this._canvas.height = gameheight;
