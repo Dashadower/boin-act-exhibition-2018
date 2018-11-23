@@ -10,7 +10,7 @@ var gameCanvas = {
     current_tick: 0, // tick, in rendering, coordinate for bottom of rect
     tile_width: 0,
     tile_height: 0,
-    pps: 0.5, // portion of screen moving per second; max tested pps before rendering screws up is about 7.x
+    pps: this.default_pps, // portion of screen moving per second; max tested pps before rendering screws up is about 7.x
     pps_increment_per_second: 0.02,
     default_pps: 0.5,
     fps: 30,
