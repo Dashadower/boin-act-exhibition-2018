@@ -20,7 +20,7 @@
 # [START gae_python37_app]
 from google.cloud import datastore
 from flask import Flask, render_template, request, redirect, render_template_string
-import json, logging, time
+import json, logging, time, requests, hashlib, hmac
 from hashlib import sha256
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
@@ -32,6 +32,12 @@ datastore_client = datastore.Client()
 GAME_DURATION = 600
 MIN_PLAYERS = 5
 
+SMS_APIKEY = "NCSBFEG948372ZA2"
+SMS_SECRET = "FYQERNY6A3VRHZWJGQUYMG4ZU6OBXHGD"
+salt = "fucksalt"
+
+
+sms_addr = "https://api.coolsms.co.kr/sms/1.5/send"
 
 @app.route('/')
 def index():
@@ -39,10 +45,21 @@ def index():
 
 @app.route("/game", methods=["post", "get"])
 def game():
-    if not request.values.get("username"):
+    if not request.values.get("username") or not request.values.get("phone_number"):
         return redirect("../")
+    if not request.values.get("phone_number").isdigit():
+        return render_template_string('''
+                <html>
+                <body>
+                <script type="text/javascript">
+                alert("잘못된 전화번호 형식입니다(숫자만 입력하세요)");
+                window.location = "../";
+                </script>
+                </body>
+                </html>
+                ''')
     username = request.values.get("username")
-    logging.info(username)
+    phone_number = request.values.get("phone_number")
     query = datastore_client.query(kind="User")
     query.add_filter("username", "=", username.encode())
     query.keys_only()
@@ -62,7 +79,8 @@ def game():
         task = datastore.Entity(datastore_client.key("User"))
         task.update({
             "username": username,
-            "score": 0
+            "score": 0,
+            "phone_number": phone_number
         })
         datastore_client.put(task)
         return render_template("game.html", username=username)
@@ -73,8 +91,6 @@ def gameinfo():
     games_result = list(game_query.fetch(limit=2))
 
     gamedata = {}
-
-
 
     if not games_result: # Need to make a game
         dt = {
@@ -144,33 +160,56 @@ def gameinfo():
 
 @app.route("/creategame", methods=["get"])
 def create_game():
-    game_query = datastore_client.query(kind="Game", order=["-starttime"])
-    games_result = list(game_query.fetch(limit=1))
-    if not games_result or games_result[0]["state"] not in ["progress", "starting"]:
-        task = datastore.Entity(datastore_client.key("Game"))
-        if games_result:
-             dt = games_result[0]["gamenumber"]
-        else:
-            dt = 0
-        gamedata = {
-            "starttime": int(time.time()),
-            "endtime": int(time.time() + GAME_DURATION),
-            "players": 0,
-            "state": "starting",
-            "gamenumber": dt + 1,
-            "hash": sha256(str(time.time()).encode()).hexdigest()[:5]
-        }
-        task.update(gamedata)
-        datastore_client.put(task)
-        user_query = datastore_client.query(kind="User")
-        user_query.keys_only()
-        user_result = list([entity.key for entity in user_query.fetch()])
-        datastore_client.delete_multi(user_result)
-        return "", 200
-    elif games_result[0]["state"] == "progress":
-        if games_result[0]["endtime"] <= time.time():
-            games_result[0]["state"] = "finished"
-            datastore_client.put(games_result[0])
+    for x in range(3):
+        game_query = datastore_client.query(kind="Game", order=["-starttime"])
+        games_result = list(game_query.fetch(limit=1))
+        if not games_result or games_result[0]["state"] not in ["progress", "starting"]:
+            task = datastore.Entity(datastore_client.key("Game"))
+            if games_result:
+                 dt = games_result[0]["gamenumber"]
+            else:
+                dt = 0
+            gamedata = {
+                "starttime": int(time.time()),
+                "endtime": int(time.time() + GAME_DURATION),
+                "players": 0,
+                "state": "starting",
+                "gamenumber": dt + 1,
+                "hash": sha256(str(time.time()).encode()).hexdigest()[:5]
+            }
+            task.update(gamedata)
+            datastore_client.put(task)
+            user_query = datastore_client.query(kind="User")
+            user_query.keys_only()
+            user_result = list([entity.key for entity in user_query.fetch()])
+            datastore_client.delete_multi(user_result)
+        elif games_result[0]["state"] == "progress":
+            if games_result[0]["endtime"] <= time.time():
+                games_result[0]["state"] = "finished"
+
+                query = datastore_client.query(kind="User", order=["-score"])
+                winner = list(query.fetch(limit=1))
+
+
+                if winner:
+                    number = winner[0]["phone_number"]
+                    games_result[0]["winnerdata"] = "%s - %s" % (winner[0]["username"], number)
+                    ctime = str(int(time.time()))
+                    text = "%d회차 우승자입니다. 운영부스로 오셔서 상품을 수령받으세요 (%s)"%(games_result[0]["gamenumber"], games_result[0]["hash"])
+                    payload = {
+                        "api_key":SMS_APIKEY,
+                        "signature":  hmac.new(SMS_SECRET.encode(), (ctime+salt).encode()).hexdigest(),
+                        "salt": salt,
+                        "timestamp": ctime,
+                        "from": "01044886398",
+                        #"to" : number,
+                        "to" : "01000000000", # test
+                        "mode" : "test", # test
+                        "text" : text
+                    }
+                    requests.post(sms_addr, data=payload)
+                datastore_client.put(games_result[0])
+        time.sleep(5)
     return "", 200
 
 

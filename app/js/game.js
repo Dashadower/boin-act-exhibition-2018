@@ -72,6 +72,7 @@ var gameCanvas = {
         this.ctx.fillText("터치하여 게임 시작", this.gamewidth/2, this.gameheight*0.2);
     },
     onTouch: function(event){
+        event.preventDefault();
         var touch = event.changedTouches;
         var rect = this._canvas.getBoundingClientRect();
         var x = touch[0].clientX - rect.left;
@@ -154,6 +155,9 @@ var gameCanvas = {
         this.pps = this.pps + this.pps_increment_per_second/this.fps;
         this.ctx.fillStyle = "red";
         this.ctx.fillText(this.score.toString(), this.gamewidth/2, this.gameheight*0.2);
+        if(networkHandler.state !== "progress"){
+            this.ctx.fillText("! 점수 반영 안됨 !", this.gamewidth/2, this.gameheight*0.1)
+        }
         return 0;
     }
 };

@@ -66,11 +66,18 @@ function fetchStats(_username, _score) {
     }
 }
 
+function set_cookie(){
+    if(networkHandler.state === "progress" || networkHandler.state === "starting") {
+        var strtime = new Date(networkHandler.endtime).toUTCString();
+        document.cookie="username="+username+"; expires="+strtime+";"
+    }
+}
+
 
 var fetch_flag = 1;
 var submitting_username = undefined;
 var submitting_score = undefined;
-var awarded = false;
+
 function updateData(tableId, notification_tableId) {
     if(fetch_flag===2){
         fetchStats(submitting_username, submitting_score);
@@ -88,13 +95,24 @@ function updateData(tableId, notification_tableId) {
     var count = 1;
     $.each(data, function(index, item) {
         var row = '<tr>';
-        row += '<td>'+count+'</td>';
-        $.each(fields, function(index, field) {
-            row += '<td>' + item[field+''] + '</td>';
+        row += '<td>' + count + '</td>';
+        $.each(fields, function (index, field) {
+            if (document.location.href.includes("game")) {
+                if (field == username) {
+                    row += '<td style="background: yellow;">'
+                }
+                else {
+                    row += '<td>'
+                }
+            }
+            else {
+                row += '<td>'
+            }
+            row += item[field + ''] + '</td>';
+            rows += row + '</tr>';
+            count += 1;
         });
-        rows += row + '</tr>';
-        count += 1;
-    });
+    };
     $('#' + tableId).html(rows);
 
     fields = ["data"];
@@ -106,6 +124,7 @@ function updateData(tableId, notification_tableId) {
         var row = '<tr>';
         row += '<td>'+count+'</td>';
         $.each(fields, function(index, field) {
+
             row += '<td>' + item[field+''] + '</td>';
         });
         rows += row + '</tr>';
@@ -117,18 +136,14 @@ function updateData(tableId, notification_tableId) {
     document.getElementById("numbawan").innerText = "현재 1위: "+networkHandler.numbawan;
     if(networkHandler.state == "starting"){
          document.getElementById("state").innerText = "게임상태: 게임 시작중";
-         awarded = false;
+
     }
     else if(networkHandler.state == "progress"){
         document.getElementById("state").innerText = "게임상태: 게임 진행중";
-        awarded = false;
+
     }
     else if(networkHandler.state == "finished"){
         document.getElementById("state").innerText = "게임상태: 게임 완료 - 다음게임 시작 대기중";
-        if(networkHandler.numbawan===username && awarded === false){
-            alert("축하드립니다. 현재 회차의 우승자가 되었습니다. 상품을 수령하기 위해 부스로 오셔서 회차 암호: "+ networkHandler.hash + " 를 부원에게 말씀해주세요.");
-            awarded = true
-        }
     }
     else if (networkHandler.state == "error"){
         document.getElementById("state").innerText = "게임상태: 오류 - 게임정보를 불러오지 못했습니다.";
