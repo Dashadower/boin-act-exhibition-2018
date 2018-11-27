@@ -94,25 +94,26 @@ function updateData(tableId, notification_tableId) {
     rows += "<tr><th>순위</th><th>아이디</th><th>점수</th></tr>";
     var count = 1;
     $.each(data, function(index, item) {
-        var row = '<tr>';
-        row += '<td>' + count + '</td>';
-        $.each(fields, function (index, field) {
-            if (document.location.href.includes("game")) {
-                if (field == username) {
-                    row += '<td style="background: yellow;">'
+
+        if (document.location.href.includes("game")) {
+                if (item["username"] === username) {
+                    var row = '<tr style="background: yellow;">'
                 }
                 else {
-                    row += '<td>'
+                    var row = '<tr>'
                 }
             }
             else {
-                row += '<td>'
-            }
-            row += item[field + ''] + '</td>';
-            rows += row + '</tr>';
-            count += 1;
+                var row = '<tr>'
+        }
+        row += '<td>' + count + '</td>';
+        $.each(fields, function (index, field) {
+            row += '<td>' + item[field + ''] + '</td>';
+
         });
-    };
+        rows += row + '</tr>';
+        count += 1;
+    });
     $('#' + tableId).html(rows);
 
     fields = ["data"];
