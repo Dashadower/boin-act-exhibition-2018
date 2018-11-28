@@ -29,6 +29,7 @@ int endtime
 int gamenumber
 int players
 str state "starting", "progress", "finished"
+str mode "vanilla", "sudden", "bomb"
 
 handler to SEND game result: GET ../gameinfo
 parameters:

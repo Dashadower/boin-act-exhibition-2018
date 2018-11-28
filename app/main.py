@@ -20,7 +20,7 @@
 # [START gae_python37_app]
 from google.cloud import datastore
 from flask import Flask, render_template, request, redirect, render_template_string
-import json, logging, time, requests, hashlib, hmac
+import json, time, requests, random, hmac
 from hashlib import sha256
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
@@ -160,7 +160,7 @@ def gameinfo():
 
 @app.route("/creategame", methods=["get"])
 def create_game():
-    for x in range(3):
+    for x in range(4):
         game_query = datastore_client.query(kind="Game", order=["-starttime"])
         games_result = list(game_query.fetch(limit=1))
         if not games_result or games_result[0]["state"] not in ["progress", "starting"]:
@@ -175,6 +175,7 @@ def create_game():
                 "players": 0,
                 "state": "starting",
                 "gamenumber": dt + 1,
+                "mode": rand_gamemode(),
                 "hash": sha256(str(time.time()).encode()).hexdigest()[:5]
             }
             task.update(gamedata)
@@ -189,7 +190,6 @@ def create_game():
 
                 query = datastore_client.query(kind="User", order=["-score"])
                 winner = list(query.fetch(limit=1))
-
 
                 if winner:
                     number = winner[0]["phone_number"]
@@ -212,7 +212,18 @@ def create_game():
         time.sleep(5)
     return "", 200
 
+def rand_gamemode():
+    choices = []
+    for x in range(5):
+        choices.append("vanilla")
 
+    for x in range(3):
+        choices.append("sudden")
+
+    for x in range(2):
+        choices.append("bomb")
+
+    return random.choice(choices)
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App

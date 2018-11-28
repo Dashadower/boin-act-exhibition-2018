@@ -28,6 +28,7 @@
         <hr>
         <h5 id="gamenumber">현재 게임회차: 연결중...</h5>
         <h5 id="state">게임상태: 연결중...</h5>
+        <h5 id="mode">게임모드: 연결중...</h5>
         <h5 id="timeleft">남은시간: 연결중...</h5>
         <h5 id="numbawan">현재 1위: 연결중...</h5>
         <h5>공지사항:</h5>
@@ -56,10 +57,23 @@
         var on_game = false;
         var username = "{{username}}";
         var interval_handle;
+        var allow_play = true;
         function changeTab(evt, cityName) {
             if(cityName == "game"){
 
                 if(on_game == false){
+                    if(networkHandler.mode === "sudden"){
+                        if (allow_play === false){
+                            alert("서든데스 모드는 기회가 한번만 주어집니다. 이번회차에 이미 입장하셨습니다.");
+                            return 0;
+                        }
+                        if (confirm("서든데스 모드는 게임 기회가 한번만 주어집니다. 정말로 하시겠습니까?")){
+                            allow_play = false;
+                        }
+                        else{
+                            return 0;
+                        }
+                    }
                     gameCanvas.initiate_game();
                     gameCanvas.set_interval();
                     clearInterval(interval_handle);
@@ -97,7 +111,11 @@
             $("#tab_info_button").click();
             fetchStats();
             updateData("scoreboard", "notifications");
-            interval_handle = setInterval(function(){updateData("scoreboard", "notifications");}, 1000);
+            interval_handle = setInterval(function(){
+                if("게임상태: 게임 시작중 게임상태: 게임 완료 - 다음게임 시작 대기중".includes(document.getElementById("state").innerText)){
+                    allow_play = true;
+                }
+                updateData("scoreboard", "notifications");}, 1000);
         });
     </script>
 

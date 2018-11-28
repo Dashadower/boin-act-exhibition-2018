@@ -16,6 +16,9 @@ var gameCanvas = {
     fps: 30,
     touch_bounds: [],
     setInterval_handle: undefined,
+    default_bomb_frequency: 50,
+    current_bomb_frequency: this.default_bomb_frequency,
+
     resize: function(){
 
         var gamewidth = $(window).width() * 0.85;
@@ -56,6 +59,7 @@ var gameCanvas = {
         this.tile_width = this.gamewidth/4;
         this.tile_height = this.gameheight/4;
         this.tiles = [];
+        this.current_bomb_frequency = this.default_bomb_frequency;
         this.ctx.textAlign = "center";
         this.ctx.fillStyle = "black";
         this.ctx.font = "30px Arial";
@@ -77,15 +81,33 @@ var gameCanvas = {
         var rect = this._canvas.getBoundingClientRect();
         var x = touch[0].clientX - rect.left;
         var y = touch[0].clientY - rect.top;
-        //console.log(this.touch_bounds, x, y);
+        console.log(this.tiles);
         if (x >= this.touch_bounds[0] &&
             x <= this.touch_bounds[1] &&
             y >= this.touch_bounds[2] &&
             y <= this.touch_bounds[3]) {
             this.tiles.shift();
             this.score = this.score + 1;
+
+            if (this.current_bomb_frequency == 0 && this.tiles[0] > 3){
+                this.tiles.shift();
+                this.
+                this.current_tick = this.current_tick - this.tile_height;
+                this.current_bomb_frequency = this.default_bomb_frequency;
+            }
+            else{
+                this.current_bomb_frequency = this.current_bomb_frequency - 1;
+            }
+            if (this.current_bomb_frequency === 1){
+                this.tiles.push(bomb_rng());
+                this.current_bomb_frequency = 0;
+            }
+            else{
+                this.tiles.push(rng())
+            }
             this.current_tick = this.current_tick - this.tile_height;
-            this.tiles.push(rng());
+
+
             submitting_score = this.score;
             submitting_username = username;
         }
@@ -144,10 +166,27 @@ var gameCanvas = {
             if(draw_y <= -this.tile_height){
                 break;
             }
-            this.ctx.fillRect(this.tiles[arr_index]*this.tile_width, draw_y-this.tile_height, this.tile_width, this.tile_height);
-            if(arr_index === 0){
+            if(this.tiles[arr_index] > 3){
+                this.ctx.fillStyle = "red"
+            }
+            else{
+                this.ctx.fillStyle = "black";
+            }
+            if(this.tiles[arr_index] > 3){
+                this.ctx.fillRect((this.tiles[arr_index]-4)*this.tile_width, draw_y-this.tile_height, this.tile_width, this.tile_height);
+            }
+            else {
+                this.ctx.fillRect(this.tiles[arr_index] * this.tile_width, draw_y - this.tile_height, this.tile_width, this.tile_height);
+            }
+            if(arr_index === 0 && this.tiles[arr_index] <= 3){
                 this.touch_bounds = [this.tiles[arr_index]*this.tile_width, (this.tiles[arr_index]+1)*this.tile_width, draw_y-this.tile_height, draw_y]
             }
+            else if(arr_index === 1) {
+                if (this.tiles[0] > 3) {
+                    this.touch_bounds = [this.tiles[arr_index] * this.tile_width, (this.tiles[arr_index] + 1) * this.tile_width, draw_y - this.tile_height, draw_y]
+                }
+            }
+
             draw_y = draw_y - this.tile_height;
             arr_index = arr_index + 1;
         }
@@ -165,7 +204,9 @@ var gameCanvas = {
 function rng(){
     return Math.floor((Math.random() * 4));
 }
-
+function bomb_rng(){
+       return Math.floor(Math.random() * (4) + 4);
+}
 $(window).on("load",function () {
     gameCanvas.resize();
     //setInterval(function(){updateData("scoreboard");}, 1000);

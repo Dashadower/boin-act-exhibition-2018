@@ -6,6 +6,7 @@ var networkHandler = {
     starttime: 0,
     endtime: 0,
     notifications: [],
+    mode: null
 };
 
 function fetchStats(_username, _score) {
@@ -26,6 +27,7 @@ function fetchStats(_username, _score) {
                     networkHandler.notifications = data.notifications;
                     networkHandler.numbawan = data.numbawan;
                     networkHandler.hash = data.hash;
+                    networkHandler.mode = data.mode;
                     //document.getElementById("game_number").innerText = data.game_number;
                     //console.log("update()", data);
                 }
@@ -54,6 +56,7 @@ function fetchStats(_username, _score) {
                     networkHandler.notifications = data.notifications;
                     networkHandler.numbawan = data.numbawan;
                     networkHandler.hash = data.hash;
+                    networkHandler.mode = data.mode;
                     //document.getElementById("game_number").innerText = data.game_number;
                     //console.log("update()", data);
                 }
@@ -151,6 +154,16 @@ function updateData(tableId, notification_tableId) {
     }
     else if (networkHandler.state == "connecting"){
         document.getElementById("state").innerText = "게임상태: 연결중...";
+    }
+    
+    if(networkHandler.mode === "vanilla"){
+        document.getElementById("mode").innerText = "게임모드: 일반";
+    }
+    else if(networkHandler.mode === "sudden"){
+        document.getElementById("mode").innerText = "게임모드: 서든데스";
+    }
+    else if(networkHandler.mode === "bomb"){
+        document.getElementById("mode").innerText = "게임모드: 폭탄 피하기";
     }
     d = new Date();
     epoch = Math.round(d.getTime() /1000);
