@@ -155,12 +155,16 @@ def gameinfo():
         gamedata["numbawan"] = user_results[0]["username"]
     gamedata["other_player_state"] = user_scores
 
-
     return json.dumps(gamedata)
+
 
 @app.route("/creategame", methods=["get"])
 def create_game():
-    for x in range(4):
+    if not request.values.get("count"):
+        repeat_times = 8
+    else:
+        repeat_times = 1
+    for x in range(repeat_times):
         game_query = datastore_client.query(kind="Game", order=["-starttime"])
         games_result = list(game_query.fetch(limit=1))
         if not games_result or games_result[0]["state"] not in ["progress", "starting"]:
@@ -192,7 +196,10 @@ def create_game():
                 winner = list(query.fetch(limit=1))
 
                 if winner:
-                    number = winner[0]["phone_number"]
+                    try:
+                        number = winner[0]["phone_number"]
+                    except KeyError:
+                        number = "NO_NUMBER"
                     games_result[0]["winnerdata"] = "%s - %s" % (winner[0]["username"], number)
                     ctime = str(int(time.time()))
                     text = "%d회차 우승자입니다. 운영부스로 오셔서 상품을 수령받으세요 (%s)"%(games_result[0]["gamenumber"], games_result[0]["hash"])

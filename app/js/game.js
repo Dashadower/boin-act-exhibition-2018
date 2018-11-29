@@ -81,30 +81,35 @@ var gameCanvas = {
         var rect = this._canvas.getBoundingClientRect();
         var x = touch[0].clientX - rect.left;
         var y = touch[0].clientY - rect.top;
-        console.log(this.tiles);
+        //console.log(this.tiles);
         if (x >= this.touch_bounds[0] &&
             x <= this.touch_bounds[1] &&
             y >= this.touch_bounds[2] &&
             y <= this.touch_bounds[3]) {
-            this.tiles.shift();
+
             this.score = this.score + 1;
 
-            if (this.current_bomb_frequency == 0 && this.tiles[0] > 3){
+            if (this.tiles[0] > 3){
                 this.tiles.shift();
-                this.
                 this.current_tick = this.current_tick - this.tile_height;
                 this.current_bomb_frequency = this.default_bomb_frequency;
             }
             else{
                 this.current_bomb_frequency = this.current_bomb_frequency - 1;
             }
-            if (this.current_bomb_frequency === 1){
+            this.tiles.shift();
+            if (this.current_bomb_frequency === 1 && networkHandler.mode === "bomb"){
                 this.tiles.push(bomb_rng());
                 this.current_bomb_frequency = 0;
             }
             else{
                 this.tiles.push(rng())
             }
+
+            if(this.current_bomb_frequency < 0){ //make it fail proof
+                this.current_bomb_frequency = this.default_bomb_frequency;
+            }
+
             this.current_tick = this.current_tick - this.tile_height;
 
 
@@ -186,7 +191,7 @@ var gameCanvas = {
                     this.touch_bounds = [this.tiles[arr_index] * this.tile_width, (this.tiles[arr_index] + 1) * this.tile_width, draw_y - this.tile_height, draw_y]
                 }
             }
-
+            //this.ctx.fillText("tb", (this.touch_bounds[0]+this.touch_bounds[1])/2,(this.touch_bounds[2]+this.touch_bounds[3])/2); // for debugging, plz remove
             draw_y = draw_y - this.tile_height;
             arr_index = arr_index + 1;
         }
