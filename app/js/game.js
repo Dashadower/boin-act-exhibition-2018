@@ -1,7 +1,6 @@
-// needs jquery and fabric.js
+// needs jquery
 var gameCanvas = {
     _canvas: document.getElementById("gamearea"),
-    //canvas: new fabric.Canvas("gamearea"),
     ctx: undefined,
     gamewidth: 0,
     gameheight: 0,
@@ -10,11 +9,13 @@ var gameCanvas = {
     current_tick: 0, // tick, in rendering, coordinate for bottom of rect
     tile_width: 0,
     tile_height: 0,
-    default_pps: 0.5,
+    default_pps: 0.3,
     pps: this.default_pps, // portion of screen moving per second; max tested pps before rendering screws up is about 7.x
-    default_pps_increment_per_second: 0.02,
+    default_pps_increment_per_second: 0.015,
     pps_increment_per_second: this.default_pps_increment_per_second, // how much should pps increase per second?
 
+
+    multiplier_pps: 1.3, // x2 multiplier start for score, in pps
     fps: 30, // theoretical tick() calls per second. 1000/fps set interval
     touch_bounds: [],
     setInterval_handle: undefined,
@@ -79,6 +80,9 @@ var gameCanvas = {
         if (networkHandler.wave == "true"){
             this.wave_enabled = true;
         }
+        else{
+            this.wave_enabled = false;
+        }
 
         //console.log("tickrate", this.tickrate);
         for(var i = 0; i <= 5; i++){
@@ -103,8 +107,12 @@ var gameCanvas = {
             x <= this.touch_bounds[1] &&
             y >= this.touch_bounds[2] &&
             y <= this.touch_bounds[3]) {
-
-            this.score = this.score + 1;
+            if (this.pps >= this.multiplier_pps){
+                this.score = this.score + 2;
+            }
+            else {
+                this.score = this.score + 1;
+            }
             if (this.wave_enabled){
                 this.wave_frequency = this.wave_frequency - 1;
             }
@@ -257,10 +265,23 @@ var gameCanvas = {
             this.pps = this.pps + this.pps_increment_per_second/this.fps;
         }
         this.pps = this.pps + this.pps_increment_per_second/this.fps;
-        this.ctx.fillStyle = "red";
+        if (this.pps >= this.multiplier_pps) {
+            this.ctx.fillStyle = "yellow";
+        }
+        else{
+            this.ctx.fillStyle = "red";
+        }
         this.ctx.fillText(this.score.toString(), this.gamewidth/2, this.gameheight*0.2);
         if(networkHandler.state !== "progress"){
+            this.ctx.fillStyle = "red";
             this.ctx.fillText("! 점수 반영 안됨 !", this.gamewidth/2, this.gameheight*0.1)
+        }
+        if (this.debugmode) {
+            this.ctx.font = "10px Arial";
+            this.ctx.fillStyle = "red";
+            this.ctx.fillText(this.pps.toString(), this.gamewidth / 4, this.gameheight * 0.1);
+            this.ctx.fillText(this.tiles.toString(), this.gamewidth / 4, this.gameheight * 0.2);
+            this.ctx.font = "30px Arial";
         }
         return 0;
     }
