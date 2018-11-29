@@ -21,8 +21,8 @@
     </div>
 
     <div id="info" class="tabcontent">
-        <h2>ACT 동아리 - 피아노 타일</h2>
-        <p>
+        <h2>ACT - 피아노 타일</h2>
+        <p id="instructions">
             게임방법 - 기간 내에 가장 높은 피아노 타일 점수를 득점하세요.
         </p>
         <hr>
@@ -62,6 +62,10 @@
             if(cityName == "game"){
 
                 if(on_game == false){
+                    if("게임상태: 게임 시작중 게임상태: 게임 완료 - 다음게임 시작 대기중".includes(document.getElementById("state").innerText)){
+                        alert("다음 게임이 시작될때까지 잠시만 기다려 주세요");
+                        return 0;
+                    }
                     if(networkHandler.mode === "sudden"){
                         if (allow_play === false){
                             alert("서든데스 모드는 기회가 한번만 주어집니다. 이번회차에 이미 입장하셨습니다.");

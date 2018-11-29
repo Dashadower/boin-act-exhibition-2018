@@ -30,6 +30,7 @@ app = Flask(__name__)
 datastore_client = datastore.Client()
 
 GAME_DURATION = 600
+SUDDEN_GAME_DURATION = 300
 MIN_PLAYERS = 5
 
 SMS_APIKEY = "NCSBFEG948372ZA2"
@@ -119,6 +120,12 @@ def gameinfo():
 
     elif games_result and games_result[0]["state"] == "progress":
         if request.values.get("score"):
+            if not request.values.get("timestamp"):
+                return render_template_string(
+                    "Rejecting request: Request attempted without parameters, seems to be sent out of client")
+            if int(request.values.get("timestamp")) >= time.time() + 5 or int(request.values.get("timestamp")) <= time.time() - 5:
+                return render_template_string(
+                    "Rejecting request: Request attempted without parameters, seems to be sent out of client")
             find_user = datastore_client.query(kind="User")
             find_user.add_filter("username", "=", request.values.get("username").encode())
             find_user_results = list(find_user.fetch())
@@ -173,13 +180,15 @@ def create_game():
                  dt = games_result[0]["gamenumber"]
             else:
                 dt = 0
+            gamemode = rand_gamemode()
             gamedata = {
                 "starttime": int(time.time()),
-                "endtime": int(time.time() + GAME_DURATION),
+                "endtime": int(time.time() + GAME_DURATION) if gamemode != "sudden" else int(time.time() + SUDDEN_GAME_DURATION),
                 "players": 0,
                 "state": "starting",
                 "gamenumber": dt + 1,
-                "mode": rand_gamemode(),
+                "mode": gamemode,
+                "wave": random.choice(["true", "false", "false"]),
                 "hash": sha256(str(time.time()).encode()).hexdigest()[:5]
             }
             task.update(gamedata)

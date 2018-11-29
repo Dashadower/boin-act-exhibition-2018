@@ -6,7 +6,8 @@ var networkHandler = {
     starttime: 0,
     endtime: 0,
     notifications: [],
-    mode: null
+    mode: null,
+    wave : null
 };
 
 function fetchStats(_username, _score) {
@@ -28,6 +29,7 @@ function fetchStats(_username, _score) {
                     networkHandler.numbawan = data.numbawan;
                     networkHandler.hash = data.hash;
                     networkHandler.mode = data.mode;
+                    networkHandler.wave = data.wave;
                     //document.getElementById("game_number").innerText = data.game_number;
                     //console.log("update()", data);
                 }
@@ -41,7 +43,7 @@ function fetchStats(_username, _score) {
     else{
         $.getJSON(
             url="../gameinfo",
-            {username: _username, score: _score},
+            {username: _username, score: _score, timestamp: Math.round(new Date().getTime() / 1000)},
             success=function(data, status, xhr){
                 if(data.state == "starting"){
                     networkHandler.game_state = data.state;
@@ -57,6 +59,7 @@ function fetchStats(_username, _score) {
                     networkHandler.numbawan = data.numbawan;
                     networkHandler.hash = data.hash;
                     networkHandler.mode = data.mode;
+                    networkHandler.wave = data.wave;
                     //document.getElementById("game_number").innerText = data.game_number;
                     //console.log("update()", data);
                 }
@@ -75,7 +78,6 @@ function set_cookie(){
         document.cookie="username="+username+"; expires="+strtime+";"
     }
 }
-
 
 var fetch_flag = 1;
 var submitting_username = undefined;
@@ -158,12 +160,18 @@ function updateData(tableId, notification_tableId) {
     
     if(networkHandler.mode === "vanilla"){
         document.getElementById("mode").innerText = "게임모드: 일반";
+        document.getElementById("instructions").innerText = "클래식 피아노 타일 - 기간 내에 가장 높은 점수를 득점하세요."
     }
     else if(networkHandler.mode === "sudden"){
         document.getElementById("mode").innerText = "게임모드: 서든데스";
+        document.getElementById("instructions").innerText = "서든데스 피아노 타일 - 기간 내에 가장 높은 점수를 득점하세요. 단, 게임은 한번만 플레이 가능힙니다."
     }
     else if(networkHandler.mode === "bomb"){
         document.getElementById("mode").innerText = "게임모드: 폭탄 피하기";
+        document.getElementById("instructions").innerText = "폭탄 피아노 타일 - 기간 내에 가장 높은 점수를 득점하세요. 단, 빨간색 타일을 누를 경우 게임이 종료됩니다."
+    }
+    if(networkHandler.wave === "true"){
+        document.getElementById("mode").innerText = document.getElementById("mode").innerText + " (웨이브)"
     }
     d = new Date();
     epoch = Math.round(d.getTime() /1000);

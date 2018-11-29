@@ -10,15 +10,26 @@ var gameCanvas = {
     current_tick: 0, // tick, in rendering, coordinate for bottom of rect
     tile_width: 0,
     tile_height: 0,
-    pps: this.default_pps, // portion of screen moving per second; max tested pps before rendering screws up is about 7.x
-    pps_increment_per_second: 0.02,
     default_pps: 0.5,
-    fps: 30,
+    pps: this.default_pps, // portion of screen moving per second; max tested pps before rendering screws up is about 7.x
+    default_pps_increment_per_second: 0.02,
+    pps_increment_per_second: this.default_pps_increment_per_second, // how much should pps increase per second?
+
+    fps: 30, // theoretical tick() calls per second. 1000/fps set interval
     touch_bounds: [],
     setInterval_handle: undefined,
-    default_bomb_frequency: 50,
+    default_bomb_frequency: 35, // if bomb mode, frequency of bomb, in tiles before bomb is added
     current_bomb_frequency: this.default_bomb_frequency,
-
+    debugmode: false,
+    wave_tmp_pps: this.pps,
+    wave_tmp_pps_increment_per_second:this.pps_increment_per_second,
+    wave_started: false,
+    wave_half_duration: 2,
+    wave_current_duration : 0,
+    wave_goal_pps: this.default_pps,
+    wave_default_frequency: 50,
+    wave_frequency: this.wave_default_frequency,
+    wave_enabled: false,
     resize: function(){
 
         var gamewidth = $(window).width() * 0.85;
@@ -56,19 +67,25 @@ var gameCanvas = {
         this.score = 0;
         this.current_tick = 0;
         this.pps = this.default_pps;
+        this.pps_increment_per_second = this.default_pps_increment_per_second;
         this.tile_width = this.gamewidth/4;
         this.tile_height = this.gameheight/4;
         this.tiles = [];
         this.current_bomb_frequency = this.default_bomb_frequency;
+        this.wave_frequency = this.wave_default_frequency;
         this.ctx.textAlign = "center";
         this.ctx.fillStyle = "black";
         this.ctx.font = "30px Arial";
+        if (networkHandler.wave == "true"){
+            this.wave_enabled = true;
+        }
+
         //console.log("tickrate", this.tickrate);
         for(var i = 0; i <= 5; i++){
             this.tiles.push(rng());
         }
         //this._canvas.addEventListener("touchstart", function(e){self.onTouch(e)}, false);
-        this.create_ready_screen();
+        //this.create_ready_screen();
         $("#gamearea").on("touchstart", function(e){self.onTouch(e);});
     },
     create_ready_screen: function(){
@@ -88,7 +105,9 @@ var gameCanvas = {
             y <= this.touch_bounds[3]) {
 
             this.score = this.score + 1;
-
+            if (this.wave_enabled){
+                this.wave_frequency = this.wave_frequency - 1;
+            }
             if (this.tiles[0] > 3){
                 this.tiles.shift();
                 this.current_tick = this.current_tick - this.tile_height;
@@ -146,23 +165,58 @@ var gameCanvas = {
     unbind: function(){
         $("#gamearea").off();
     },
+    pps_wave: function(){
+        /*
+        wave_tmp_pps: this.pps,
+        wave_tmp_pps_increment_per_second:this.pps_increment_per_second,
+        wave_started: false,
+        wave_half_duration: 2,
+        wave_current_duration : 0,
+        wave_goal_pps: 0.5,
+        */
+        if (!this.wave_started){
+            console.log("wave started");
+            this.wave_started = true;
+            this.wave_current_duration = 0;
+            this.wave_tmp_pps = this.pps;
+            this.wave_goal_pps = this.default_pps;
+            cval = this.wave_func(this.wave_tmp_pps, this.wave_goal_pps, this.wave_half_duration, this.wave_current_duration);
+            console.log(cval);
+            return cval
+        }
+        if(this.wave_started){
+            this.wave_current_duration = this.wave_current_duration + 1/this.fps;
+            if (this.wave_current_duration >= this.wave_half_duration*2){
+                console.log("wave finished");
+                this.wave_started = false;
+                this.wave_frequency = this.wave_default_frequency;
+            }
+            cval = this.wave_func(this.wave_tmp_pps, this.wave_goal_pps, this.wave_half_duration, this.wave_current_duration);
+            console.log(cval);
+            return cval
+        }
+    },
+    wave_func: function(c, g, t, t_c){
+        var slope = (c-g)/Math.pow(t, 2);
+        var y = slope * Math.pow((t_c - t), 2) + g;
+        return y;
+    },
     tick: function () {
         this.clear();
         this.draw_Base();
         if(this.current_tick <= 0){
             this.current_tick = this.current_tick + 1;
-
             return 0;
         }
-        //console.log("tick",this.current_tick);
-        //console.log("tiles", this.tiles);
 
         if(this.current_tick > this.gameheight + this.tile_height){
             this.tiles.shift();
             this.tiles.push(rng());
             this.current_tick = this.current_tick - this.tile_height;
             //should be game over here
-            this.onGameOver();
+            if (!this.debugmode){
+                this.onGameOver();
+            }
         }
         this.ctx.fillStyle = "black";
         var draw_y = this.current_tick;
@@ -196,6 +250,12 @@ var gameCanvas = {
             arr_index = arr_index + 1;
         }
         this.current_tick = this.current_tick + this.gameheight* (this.pps/this.fps);
+        if (this.wave_frequency === 0){
+            this.pps = this.pps_wave();
+        }
+        else{
+            this.pps = this.pps + this.pps_increment_per_second/this.fps;
+        }
         this.pps = this.pps + this.pps_increment_per_second/this.fps;
         this.ctx.fillStyle = "red";
         this.ctx.fillText(this.score.toString(), this.gamewidth/2, this.gameheight*0.2);
