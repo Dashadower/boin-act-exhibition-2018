@@ -9,7 +9,15 @@ handlers:
   upload: js/(.*\.(js))$
   expiration: 10s
 
+- url: /images/(.*\.(gif|png|jpg))$
+  static_files: images/\1
+  upload: images/.*\.(gif|png|jpg)$
+
 - url: /stylesheets/(.*\.(css))$
   static_files: stylesheets/\1
   upload: stylesheets/(.*\.(css))$
   expiration: 10s
+
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico

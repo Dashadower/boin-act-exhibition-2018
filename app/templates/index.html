@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ACT</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="../stylesheets/mainstyle.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="../js/getstats.js"></script>
 </head>
-<body>
+<body style="background-color: azure">
+    <img src="../images/act_logo_blue.png" style="width: 200px; height: 200px; display: block; margin-left: auto; margin-right: auto">
     <h2>ACT - 피아노 타일</h2>
 
     <p id="instructions">게임방법 - 기간 내에 가장 높은 피아노 타일 점수를 득점하세요.</p>
@@ -16,16 +19,16 @@
     <form action="game" method="post">
         <table style="border: none">
             <tr style="border: none">
-                <td style="border: none">아이디</td>
+                <td style="border: none"><b>아이디</b></td>
                 <td style="border: none"><input type="text" name="username" maxlength="20" size="20"></td>
             </tr>
             <tr style="border: none">
-                <td style="border: none">전화번호(숫자만)</td>
+                <td style="border: none"><b>전화번호(숫자만)</b></td>
                 <td style="border: none"><input type="text" name="phone_number" maxlength="11" size="20"></td>
             </tr>
             <tr style="border: none">
                 <td style="border: none" colspan="2" >
-                    <input type="submit" value="입장하기">
+                    <input type="submit" class="loginButton" value="입장하기">
                 </td>
             </tr>
         </table>
