@@ -39,3 +39,7 @@ score: distance
 IMPORTANT NOTE ON DATASTORE OBJECTS
 Datastore strings are ".encode()"ed when entities are created. So when you use query(), you need to encode() the string
 you are trying to compare.
+
+q = db.Entity()
+cmp_str = "foo"
+if (cmp_str.encode() == q["property"])

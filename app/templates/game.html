@@ -89,7 +89,7 @@
             }
             else{
                 if(on_game == true){
-                    gameCanvas.onGameOver()
+                    gameCanvas.onGameOver();
                     interval_handle = setInterval(function(){updateData("scoreboard", "notifications");}, 1000);
                 }
                 on_game = false;

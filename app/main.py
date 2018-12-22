@@ -101,7 +101,7 @@ def gameinfo():
             "players": 0,
             "starttime":  0 ,
             "endtime": 0,
-            "final_players": 0
+            "final_players": 0,
         }
         notifications = []
         query = datastore_client.query(kind="Notification")
@@ -190,7 +190,8 @@ def create_game():
                 "gamenumber": dt + 1,
                 "mode": gamemode,
                 "wave": random.choice(["true", "false", "false"]),
-                "hash": sha256(str(time.time()).encode()).hexdigest()[:5]
+                "hash": sha256(str(time.time()).encode()).hexdigest()[:5],
+                "send_sms": 1
             }
             task.update(gamedata)
             datastore_client.put(task)
@@ -217,23 +218,28 @@ def create_game():
                     windata = datastore.Entity(datastore_client.key("Winner"))
                     windata.update({"username":winner[0]["username"], "phone":number, "gamenumber":games_result[0]["gamenumber"], "hash":games_result[0]["hash"]})
                     datastore_client.put(windata)
+                    if number != "NO_NUMBER":
+                        text = "[ACT]%d회차 우승자입니다. 2-12반으로 오셔서 상품을 수령받으세요 (%s)"%(games_result[0]["gamenumber"], games_result[0]["hash"])
+                        payload = {
+                            "api_key":SMS_APIKEY,
+                            "signature":  hmac.new(SMS_SECRET.encode(), (ctime+salt).encode()).hexdigest(),
+                            "salt": salt,
+                            "timestamp": ctime,
+                            "from": "01044886398",
+                            "to" : number,
+                            #"to" : "01000000000", # test
+                            #"mode" : "test", # test
+                            "text" : text
+                        }
+                        try:
+                            if games_result[0]["send_sms"] == 1:
 
-                    text = "[ACT]%d회차 우승자입니다. 2-12반으로 오셔서 상품을 수령받으세요 (%s)"%(games_result[0]["gamenumber"], games_result[0]["hash"])
-                    payload = {
-                        "api_key":SMS_APIKEY,
-                        "signature":  hmac.new(SMS_SECRET.encode(), (ctime+salt).encode()).hexdigest(),
-                        "salt": salt,
-                        "timestamp": ctime,
-                        "from": "01044886398",
-                        #"to" : number,
-                        "to" : "01000000000", # test
-                        "mode" : "test", # test
-                        "text" : text
-                    }
-                    try:
-                        requests.post(sms_addr, data=payload)
-                    except:
-                        logging.error("Failed to send SMS request.")
+                                requests.post(sms_addr, data=payload)
+                        except:
+                            logging.error("Failed to send SMS request.")
+                            games_result[0]["send_sms"] = -1
+                        else:
+                            games_result[0]["send_sms"] = 2
                 else:
                     games_result[0]["final_players"] = 0
                 datastore_client.put(games_result[0])
